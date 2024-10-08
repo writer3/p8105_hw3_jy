@@ -1,0 +1,43 @@
+---
+title: "HW3"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(haven)
+```
+
+
+
+## Problem 2
+
+Load and tidy demographic data
+
+```{r}
+demo_df = 
+  read_csv("data/nhanes_covar.csv", 
+    skip = 4,
+    na = c("NA", ".", "")) |> 
+  janitor::clean_names()
+
+```
+
+
+
+
+Load and tidy accelerometer data
+
+```{r}
+accel_df = 
+  read_csv("data/nhanes_accel.csv", 
+    na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  pivot_longer(
+    min1:min1440,
+    names_to = "min",
+    values_to = "minute"
+  )
+```
+  
+
