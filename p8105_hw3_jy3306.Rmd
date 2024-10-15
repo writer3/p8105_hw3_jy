@@ -12,19 +12,30 @@ library(haven)
 
 ## Problem 2
 
-Load and tidy demographic data
+Load and tidy demographic data.Exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes.
 
 ```{r}
 demo_df = 
   read_csv("data/nhanes_covar.csv", 
     skip = 4,
     na = c("NA", ".", "")) |> 
-  janitor::clean_names()
-
+  janitor::clean_names() |> 
+  filter(age >= 21) |> 
+  drop_na() |>
+  mutate(
+    sex = case_match(
+      sex,
+      1 ~ "male",
+      2 ~ "female")) |>
+  mutate(
+    education = case_match(
+      education,
+      1 ~ "Less than high school",
+      2 ~ "High school equivalent",
+      3 ~ "More than high school"
+    )) |>
+  mutate(education = factor(education, levels = c("Less than high school", "High school equivalent", "More than high school"), ordered = TRUE))
 ```
-
-
-
 
 Load and tidy accelerometer data
 
@@ -35,9 +46,40 @@ accel_df =
   janitor::clean_names() |> 
   pivot_longer(
     min1:min1440,
-    names_to = "min",
-    values_to = "minute"
+    names_to = "minute",
+    values_to = "mims",
+    names_prefix = "min"
   )
 ```
-  
 
+Merge demographic and accelerometer data
+
+```{r}
+merged_df = left_join(demo_df, accel_df)
+```
+
+Produce a table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
+
+```{r}
+merged_df |> 
+  distinct(seqn, .keep_all = TRUE) |> 
+  group_by(sex, education) |> 
+  summarise(n_obs = n()) |>
+  pivot_wider(
+    names_from = "sex",
+    values_from = "n_obs"
+  )|> 
+  knitr::kable()
+
+
+merged_df |> 
+  distinct(seqn, .keep_all = TRUE) |> 
+  ggplot(aes(x = age, fill = sex))+
+  geom_histogram(binwidth = 5, alpha = 0.5) +
+  facet_grid(. ~ education) +
+  labs(
+    title = 'Distribution of age by sex and education',
+    y = 'Frequency',
+    x = 'Age'
+  )
+```
