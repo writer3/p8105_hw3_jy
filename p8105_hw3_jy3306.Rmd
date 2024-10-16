@@ -233,7 +233,37 @@ Making a plot to investigate the effects of day of the week, month, and year on 
 ```{r}
 citi_plot = 
   citi_df |> 
-  separate(month_year, into = c("month", "year"), sep = "_")
+  separate(month_year, into = c("month", "year"), sep = "_") |> 
+  mutate(
+     month = factor(month, levels = c("jan", "july"), ordered = TRUE),
+     year = factor(year, levels = c("2020", "2024"))
+  ) |> 
+  group_by(weekdays, month, year) |> 
+  summarise(median_duration = median(duration))
+
+ggplot(citi_plot, aes(x = weekdays, y = median_duration, fill = month)) +
+  geom_point(alpha = .3) +
+  geom_smooth(method = "lm", aes(group = month), se = FALSE, alpha = .5) +
+  theme(legend.position = "bottom") +
+  facet_grid(year ~ month) +
+  labs(
+    title = "Median Ride Duration by Day of the Week, Month, and Year",
+    x = "Day of the Week",
+    y = "Median Ride Duration (minutes)",
+    fill = "Month") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(citi_plot, aes(x = weekdays, y = median_duration, fill = month)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme(legend.position = "bottom") +
+  facet_grid(year ~ month) +
+  labs(
+    title = "Median Ride Duration by Day of the Week, Month, and Year",
+    x = "Day of the Week",
+    y = "Median Ride Duration (minutes)",
+    fill = "Month") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 ```
 
 
