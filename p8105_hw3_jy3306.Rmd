@@ -12,7 +12,7 @@ library(haven)
 
 ## Problem 2
 
-Load and tidy demographic data.Exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes.
+Load and tidy demographic data. Exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes.
 
 ```{r}
 demo_df = 
@@ -58,7 +58,7 @@ Merge demographic and accelerometer data
 merged_df = left_join(demo_df, accel_df)
 ```
 
-Produce a table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
+Producing a table for the number of men and women in each education category 
 
 ```{r}
 merged_df |> 
@@ -70,16 +70,27 @@ merged_df |>
     values_from = "n_obs"
   )|> 
   knitr::kable()
+```
+
+The table shows that while the female and male distribution in the "Less than high school" and "More than high school" education levels are similar, there are more males than females in the "High school equivalent" level.  
 
 
+Creating a visualization of the age distributions for men and women in each education category. Comment on these items.
+
+```{r}
 merged_df |> 
   distinct(seqn, .keep_all = TRUE) |> 
-  ggplot(aes(x = age, fill = sex))+
-  geom_histogram(binwidth = 5, alpha = 0.5) +
-  facet_grid(. ~ education) +
+  ggplot(aes(x = sex, y= age, color = education))+
+  geom_boxplot() +
+  theme(legend.position = "bottom") +
   labs(
-    title = 'Distribution of age by sex and education',
-    y = 'Frequency',
-    x = 'Age'
+    title = "Distribution of age by sex and education",
+    x = "Sex",
+    y = "Age",
+    color = "Education"
   )
 ```
+
+The boxplot shows that among females, the "More than high school" education level has significantly a younger age compared to "Less than high school" and "High school equivalent" education levels. Among males, the "More than high school" education level also has significantly a younger age compared to "Less than high school" and "High school equivalent" education levels. Between the sexes, the average age of females in the "High school equivalent" education level is higher than males. 
+
+
