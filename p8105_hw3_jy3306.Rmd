@@ -121,3 +121,28 @@ Total activity per day decreases with increasing age for all sexes and education
 
 Making a three-panel plot that shows the 24-hour activity time courses for each education level and using color to indicate sex. 
 
+```{r}
+merged_df |> 
+  group_by(sex, education, minute) |> 
+  summarise(mean_activity = mean(mims)) |> 
+  ggplot(aes(x = minute, y = mean_activity, color = sex)) +
+  geom_point(alpha = .1) +
+  geom_smooth(se = FALSE) +
+  scale_x_continuous(breaks = c(0, 480, 960, 1440)) +
+  theme(legend.position = "bottom") +
+  facet_grid(~education) +
+  labs(
+    title = "24-hour Activity Time Courses by Each Education Level",
+    x = "Minutes",
+    y = "Mean Activity Over a Day",
+    color = "Sex"
+  )
+
+```
+
+Across all education levels and sexes, the 24-hour activity time courses were similar. The lowest mean activities were observed at approximately minute 240. Then the mean activity increases after minute 240 until approximately minute 700. Following minute 700, the mean activity decreases until the end of the day. 
+
+Compared to "High school equivalent" and "More than high school" education levels, the "Less than high school" education level had the highest peak mean activity. 
+
+Within the "Less than high school" education level, there were not significant differences in mean activity over a day between male and female. However, in the "High school equivalent" and "More than high school" education levels, the females had higher mean activity than males. 
+
