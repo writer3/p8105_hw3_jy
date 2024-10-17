@@ -89,6 +89,7 @@ ny_noaa |>
 ```
 
 
+
 ## Problem 2
 
 Load and tidy demographic data. Exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes.
@@ -153,6 +154,7 @@ merged_df |>
 ```
 
 The table shows that while the female and male distribution in the "Less than high school" and "More than high school" education levels are similar, there are more males than females in the "High school equivalent" level.  
+
 
 
 Creating a visualization of the age distributions for men and women in each education category. Comment on these items.
@@ -227,8 +229,8 @@ Within the "Less than high school" education level, there were not significant d
 
 
 
-## Problem 3
 
+## Problem 3
 
 Importing, cleaning, and tidying all Citi Bike data.
 
