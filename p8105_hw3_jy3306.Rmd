@@ -89,7 +89,6 @@ ny_noaa |>
 ```
 
 
-
 ## Problem 2
 
 Load and tidy demographic data. Exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes.
@@ -363,3 +362,4 @@ ggplot(citi_plot2, aes(x = month, y = duration, fill = rideable_type)) +
 ```
 
 Based on the violin plot, casual members appears to have more rides that were longer in duration than members in both January and July. This trend was also true when stratified by classic and electric bikes. The effect of months on the ride duration was not seen for both casual and members between both electric and classic ride types. 
+
