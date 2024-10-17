@@ -6,6 +6,86 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(haven)
+library(p8105.datasets)
+library(ggridges)
+```
+
+## Problem 1
+
+Load the data
+
+```{r}
+data("ny_noaa")
+```
+
+The "ny_noaa" dataset contains measurements from New York, collected by National Oceanic and Atmospheric Association (NOAA) of the National Centers for Environmental Information (NCEI). The dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. The dataset contains weather station ID, date of observation, precipitation (tenths of mm), snowfall (mm), snow depth (mm), maximum and minimum temperatures (tenths of degrees Celsius)
+
+Given that each weather station may collect only a subset of these variables, and thus the resulting dataset contains extensive missing data, particularly maximum and minimum temperatures and snowfall and snow depths, which makes it challenging to analyze this dataset.  
+
+
+Cleaning the data. Creating separate variables for year, month, and ensuring observations for temperature, precipitation, and snowfall are given in reasonable units. 
+
+```{r}
+ny_noaa = 
+  ny_noaa |> 
+  separate(date, into = c("year", "month", "day"), convert = TRUE) |> 
+  mutate(
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin)
+  )
+
+ny_noaa |> 
+  count(snow) |> 
+  arrange(desc(n))
+```
+
+For snow fall, the most commonly observed value is 0, most likely because there are more days in the year that does not snow in the New York than days that snow.  
+
+
+
+Making a two-panel plot showing the average max temperature in January and in July in each station across years. 
+
+```{r}
+ny_noaa |> 
+  group_by(id, year, month) |>  
+  filter(month == c(1, 7)) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE, color = id))  |>  
+  ggplot(aes(x = year, y = mean_tmax, group = id)) + 
+  geom_point(alpha = .5) + 
+  facet_grid(~month) +
+  labs(
+    title = "Average Temperature Monthly For Each Station Across Years For January and July",
+    y = "Average Maximum Temperature (tenths of degrees Celsius)",
+    x = "Year"
+  )
+```
+
+The average maximum temperature is lower in January than July as expected. Also as expected, the temperature does not appear to change across the years in January. Similar trend was seen in July. 
+
+There are some outliers. For example, there was one station in around 1983 that had maximum average temperature of more than -15 degrees celsius in January. In July, there was one station around 1988 that recorded a maximum average temperature of 15 degrees Celsius. 
+
+
+Making a two-panel plot showing (i) tmax vs tmin for the full dataset, and (ii) making a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year
+
+```{r}
+ny_noaa |>  
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex() +
+    labs(
+    title = "Maximum Temperature by Minimum Temperature",
+    y = "Minimum Temperature (tenths of degrees Celsius)",
+    x = "Maximum Temperature (tenths of degrees Celsius)"
+  )
+
+ny_noaa |>  
+  filter(snow < 100, snow > 0) |> 
+  ggplot(aes(x = snow, y = as.factor(year))) + 
+  geom_density_ridges() +
+  labs(
+    title = "Distribution of Snowfall by Year",
+    y = "Year",
+    x = "Snowfall (mm)"
+  )
 ```
 
 
@@ -268,9 +348,8 @@ citi_plot2 =
      month = factor(month, levels = c("jan", "july"), ordered = TRUE),
      year = factor(year, levels = c("2020", "2024"))
   ) |> 
-  filger(year == 2024) |> 
-  group_by(rideable_type, month, year)
-
+  filter(year == 2024) |> 
+  group_by(rideable_type, month, year, member_casual)
 
 ggplot(citi_plot2, aes(x = month, y = duration, fill = rideable_type)) +
   geom_violin() +
@@ -281,18 +360,6 @@ ggplot(citi_plot2, aes(x = month, y = duration, fill = rideable_type)) +
     y = "Ride duration (minutes)",
     fill = "Bike Type") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-ggplot(citi_plot2, aes(x = month, y = duration, fill = rideable_type)) +
-  geom_boxplot(position = position_dodge()) +
-  facet_grid(member_casual ~ .) +
-  labs(
-    title = "Distribution of Ride Duration by Month, Membership Status, and Bike Type",
-    x = "Month",
-    y = "Ride duration (minutes)",
-    fill = "Bike Type") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
 ```
 
+Based on the violin plot, casual members appears to have more rides that were longer in duration than members in both January and July. This trend was also true when stratified by classic and electric bikes. The effect of months on the ride duration was not seen for both casual and members between both electric and classic ride types. 
